@@ -1,7 +1,7 @@
 import torch
 import torch.cuda
 import torch.nn as nn
-from test import ViT
+from my_vit import ViT
 from torchvision import transforms, datasets
 
 
@@ -53,7 +53,8 @@ def main():
         device = torch.device('cpu')
     print('PyTorch 버전:', torch.__version__, ' Device:', device)
 
-    trans = transforms.Compose([transforms.RandomHorizontalFlip(),
+    trans = transforms.Compose([transforms.Resize((224, 224)),
+                                transforms.RandomHorizontalFlip(),
                                 transforms.ToTensor(),
                                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
@@ -79,10 +80,13 @@ def main():
         print('y_train:', y_train.size(), 'type:', y_train.type())
         break
 
-    model = ViT()
+    model = ViT(img_size=224, n_classes=10)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+    # optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
     criterion = nn.CrossEntropyLoss()
+
+    final_accuracy = 0.0
 
     for epoch in range(1, EPOCHS + 1):
         train(model, train_loader, optimizer, criterion, device, epoch, log_interval=200)
@@ -90,7 +94,9 @@ def main():
         print("\n[EPOCH: {}], \tTest Loss: {:.4f}, \tTest Accuracy: {:.2f} % \n".format(
             epoch, test_loss, test_accuracy))
 
-    torch.save(model, 'result.pt')
+        final_accuracy = f'{(test_accuracy):>0.1f}'
+
+    torch.save(model, f'weights/vit_ep{EPOCHS}_ac{final_accuracy}.pt')
 
 
 if __name__ == '__main__':
