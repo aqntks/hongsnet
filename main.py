@@ -80,7 +80,7 @@ def main():
         print('y_train:', y_train.size(), 'type:', y_train.type())
         break
 
-    model = ViT(img_size=224, n_classes=10)
+    model = ViT(img_size=224, n_classes=10).to(device)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
     # optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
