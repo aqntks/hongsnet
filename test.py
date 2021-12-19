@@ -10,27 +10,40 @@ from torchvision.transforms import *
 import matplotlib.pyplot as plt
 
 from torchsummary import summary
-from vit import *
+from my_vit import *
+
+
+# 랜덤 계수
+random_seed = 17
+torch.manual_seed(random_seed)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+torch.cuda.manual_seed(random_seed)
+torch.cuda.manual_seed_all(random_seed) # if use multi-GPU
+import numpy as np
+np.random.seed(random_seed)
+import random
+random.seed(random_seed)
 
 
 # options
-batch_size = 8
-epochs = 20
+batch_size = 32
+epochs = 5
 
-device = 'cuda:1' if torch.cuda.is_available() else 'cpu'
+device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
 # augmentation
 transform = transforms.Compose([# transforms.RandomHorizontalFlip(),
-                                transforms.Resize((224, 224)),
+                                transforms.Resize((32, 32)),
                                 transforms.ToTensor()])
 
 # data load
-train_data = datasets.CIFAR10(root="data",
+train_data = datasets.CIFAR10(root="data/CIFAR_10",
                             train=True,
                             download=True,
                             transform=transform)
 
-test_data = datasets.CIFAR10(root="data",
+test_data = datasets.CIFAR10(root="data/CIFAR_10",
                            train=False,
                            download=True,
                            transform=transform)
@@ -61,7 +74,7 @@ class Model(nn.Module):
 
 # create model
 # model = Model().to(device)
-model = ViT(img_size=224, n_classes=10).to(device)
+model = ViT(img_size=32, n_classes=10).to(device)
 
 
 # optimizer

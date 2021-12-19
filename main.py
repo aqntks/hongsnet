@@ -4,6 +4,18 @@ import torch.nn as nn
 from my_vit import ViT
 from torchvision import transforms, datasets
 
+# 랜덤 계수
+random_seed = 17
+torch.manual_seed(random_seed)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+torch.cuda.manual_seed(random_seed)
+torch.cuda.manual_seed_all(random_seed) # if use multi-GPU
+import numpy as np
+np.random.seed(random_seed)
+import random
+random.seed(random_seed)
+
 
 def train(model, train_loader, optimizer, criterion, DEVICE, epoch, log_interval):
 
@@ -44,7 +56,7 @@ def evaluate(model, test_loader, criterion, DEVICE):
 
 
 def main():
-    batch_size = 16
+    batch_size = 32
     EPOCHS = 5
 
     if torch.cuda.is_available():
@@ -80,7 +92,8 @@ def main():
         print('y_train:', y_train.size(), 'type:', y_train.type())
         break
 
-    model = ViT(img_size=224, n_classes=10).to(device)
+    model = ViT(img_size=32, n_classes=10).to(device)
+    # model = ViT(image_size=32, patch_size=16, num_classes=10, dim=768, depth=12, heads=12, mlp_dim=3072).to(device)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
     # optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
