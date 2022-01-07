@@ -65,7 +65,7 @@ def main():
         device = torch.device('cpu')
     print('PyTorch 버전:', torch.__version__, ' Device:', device)
 
-    trans = transforms.Compose([transforms.Resize((224, 224)),
+    trans = transforms.Compose([transforms.Resize((32, 32)),
                                 transforms.RandomHorizontalFlip(),
                                 transforms.ToTensor(),
                                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
