@@ -1,7 +1,9 @@
 import torch
 import torch.cuda
 import torch.nn as nn
-from my_vit import ViT
+# from my_vit import ViT
+# from vit import ViT
+from vit2 import ViT
 from torchvision import transforms, datasets
 
 # 랜덤 계수
@@ -65,8 +67,8 @@ def main():
         device = torch.device('cpu')
     print('PyTorch 버전:', torch.__version__, ' Device:', device)
 
-    trans = transforms.Compose([transforms.Resize((32, 32)),
-                                transforms.RandomHorizontalFlip(),
+    trans = transforms.Compose([transforms.Resize((256, 256)),
+                                # transforms.RandomHorizontalFlip(),
                                 transforms.ToTensor(),
                                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
@@ -92,8 +94,22 @@ def main():
         print('y_train:', y_train.size(), 'type:', y_train.type())
         break
 
-    model = ViT(img_size=32, n_classes=10).to(device)
+    # myvit
+    # model = ViT(img_size=32, n_classes=10).to(device)
+    # vit
     # model = ViT(image_size=32, patch_size=16, num_classes=10, dim=768, depth=12, heads=12, mlp_dim=3072).to(device)
+    # vit2
+    model = ViT(
+        image_size=256,
+        patch_size=32,
+        num_classes=1000,
+        dim=1024,
+        depth=6,
+        heads=16,
+        mlp_dim=2048,
+        dropout=0.1,
+        emb_dropout=0.1
+    )
 
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
     # optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
