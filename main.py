@@ -2,7 +2,7 @@ import torch
 import torch.cuda
 import torch.nn as nn
 import my_vit
-import vit
+import vit_old
 import vit2
 from torchvision import transforms, datasets
 
@@ -100,7 +100,7 @@ def main(arg):
         model = my_vit.ViT(img_size=img_size, n_classes=10).to(device)
     elif vit_num == 2:
         # vit
-        model = vit.ViT(image_size=img_size, patch_size=16, num_classes=10, dim=768, depth=12, heads=12, mlp_dim=3072).to(device)
+        model = vit_old.ViT(image_size=img_size, patch_size=16, num_classes=10, dim=768, depth=12, heads=12, mlp_dim=3072).to(device)
     # vit2
     elif vit_num == 3:
         model = vit2.ViT(
