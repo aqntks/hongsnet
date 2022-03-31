@@ -1,9 +1,7 @@
 import torch
 import torch.cuda
 import torch.nn as nn
-import my_vit
-import vit_old
-import vit2
+import vit
 from torchvision import transforms, datasets
 
 import argparse
@@ -60,7 +58,7 @@ def evaluate(model, test_loader, criterion, DEVICE):
 
 
 def main(arg):
-    batch_size, EPOCHS, img_size, vit_num = arg.batch, arg.epoch, arg.img, arg.vit
+    batch_size, EPOCHS, img_size = arg.batch, arg.epoch, arg.img
 
     if torch.cuda.is_available():
         device = torch.device('cuda')
@@ -95,25 +93,7 @@ def main(arg):
         print('y_train:', y_train.size(), 'type:', y_train.type())
         break
 
-    if vit_num == 1:
-        # myvit
-        model = my_vit.ViT(img_size=img_size, n_classes=10).to(device)
-    elif vit_num == 2:
-        # vit
-        model = vit_old.ViT(image_size=img_size, patch_size=16, num_classes=10, dim=768, depth=12, heads=12, mlp_dim=3072).to(device)
-    # vit2
-    elif vit_num == 3:
-        model = vit2.ViT(
-            image_size=img_size,
-            patch_size=32,
-            num_classes=1000,
-            dim=1024,
-            depth=6,
-            heads=16,
-            mlp_dim=2048,
-            dropout=0.1,
-            emb_dropout=0.1
-        )
+    model = vit.ViT(img_size=img_size, n_classes=10).to(device)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
     # optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
@@ -137,6 +117,5 @@ if __name__ == '__main__':
     parser.add_argument('--batch', type=int, default=32)
     parser.add_argument('--epoch', type=int, default=5)
     parser.add_argument('--img', type=int, default=256)
-    parser.add_argument('--vit', type=int, default=1)
     opt = parser.parse_args()
     main(opt)
