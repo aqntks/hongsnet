@@ -59,10 +59,50 @@ class MultiHeadAttention(nn.Module):
             energy.mask_fill(~mask, fill_value)
 
         scaling = self.emb_size ** (1/2)
-        att = F.softmax(energy, dim=-1)
+        att = F.softmax(energy, dim=-1) / scaling
         att = self.att_drop(att)
 
         out = torch.einsum('bhal, bhlv -> bhav', att, values)
         out = rearrange(out, "b h n d -> b n (h d)")
         out = self.projection(out)
         return out
+
+
+# MLP
+class FeedForwardBlock(nn.Sequential):
+    def __init__(self, emb_size, expansion=4, drop_p=0.):
+        super().__init__(
+            nn.Linear(emb_size, expansion * emb_size),
+            nn.GELU(),
+            nn.Dropout(drop_p),
+            nn.Linear(expansion * emb_size, emb_size),
+        )
+
+
+class ResidualAdd(nn.Module):
+    def __init__(self, fn):
+        super().__init__()
+        self.fn = fn
+
+    def forward(self, x, **kwargs):
+        res = x
+        x = self.fn(x, **kwargs)
+        x += res
+        return x
+
+
+class TransformerEncoderBlock(nn.Sequential):
+    def __init__(self, emb_size=768, drop_p=0., forward_expansion=4, forward_drop_p=0., **kwargs):
+        super().__init__(
+            ResidualAdd(nn.Sequential(
+                nn.LayerNorm(emb_size),
+                MultiHeadAttention(emb_size, **kwargs),
+                nn.Dropout(drop_p)
+            )),
+            ResidualAdd(nn.Sequential(
+                nn.LayerNorm(emb_size),
+                FeedForwardBlock(
+                    emb_size, expansion=forward_expansion, drop_p=forward_drop_p),
+                nn.Dropout(drop_p)
+            )
+            ))
